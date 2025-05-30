@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #5e9fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .phone-frame {
+      background: #222;
+      border-radius: 48px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25), 0 1.5px 0 #888 inset;
+      width: 360px;
+      max-width: 98vw;
+      height: 760px;
+      max-height: 98vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+      overflow: hidden;
+      border: 10px solid #222;
+    }
+
+    .notch {
+      width: 210px;
+      height: 32px;
+      background: #181818;
+      border-radius: 0 0 28px 28px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      margin-top: -10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .speaker {
+      width: 60px;
+      height: 8px;
+      background: #444;
+      border-radius: 8px;
+      margin: 0 8px;
+    }
+    .camera {
+      width: 14px;
+      height: 14px;
+      background: #222;
+      border-radius: 50%;
+      border: 2px solid #444;
+      margin-left: 12px;
+      margin-right: 12px;
+    }
+
+    .phone-content {
+      width: 100%;
+      height: 100%;
+      padding: 56px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* Move content slightly up */
+      justify-content: flex-start;
+      background: #f7f9fa;
+      border-radius: 38px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .center-content {
+      width: 90%;
+      max-width: 320px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* Move content up by adding margin-top */
+      margin-top: 140px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.3rem;
+      color: #555;
+      font-weight: 600;
+      width: 100%;
+      text-align: left;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #0070f3;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background-color: #0070f3;
+      color: white;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #005bb5;
+    }
+
+    .message {
+      margin-top: 1rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .message.error {
+      color: #e63946;
+    }
+
+    .message.success {
+      color: #2a9d8f;
+    }
+
+    .signup-link {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .signup-link a {
+      color: #0070f3;
+      text-decoration: none;
+    }
+
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Hide scrollbars for phone content */
+    .phone-content::-webkit-scrollbar {
+      display: none;
+    }
+    .phone-content {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="notch">
+      <div class="camera"></div>
+      <div class="speaker"></div>
+    </div>
+    <div class="phone-content">
+      <div class="center-content">
+        <h2>Login</h2>
+        <form id="loginForm">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+
+          <button type="submit">Login</button>
+        </form>
+        <div id="message" class="message"></div>
+        <div class="signup-link">
+          Don't have an account? <a href="signup.html">Sign up</a>
+        </div>
+      </div>
+    </div>
+  </div>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  // Initialize Supabase
+  const supabaseUrl = 'https://rzsymysabhexvzylvkws.supabase.co'
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6c3lteXNhYmhleHZ6eWx2a3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1MTU2ODUsImV4cCI6MjA2NDA5MTY4NX0.VGqamdohNs4afOerQpWCak5UsytPaSxdPcuMj6aTeLQ'
+  const supabase = createClient(supabaseUrl, supabaseKey)
+
+  // Get form and message elements
+  const form = document.getElementById('loginForm');
+  const messageEl = document.getElementById('message');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    messageEl.textContent = '';
+    messageEl.className = 'message';
+
+    const email = form.email.value.trim();
+    const password = form.password.value;
+
+    if (!email || !password) {
+      messageEl.textContent = 'Please fill out all fields.';
+      messageEl.classList.add('error');
+      return;
+    }
+
+    try {
+      // Attempt login with Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        messageEl.textContent = 'Error: ' + error.message;
+        messageEl.classList.add('error');
+      } else {
+        // Check if user exists in users table
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', email)
+          .single();
+
+        // If not, insert a new record (minimal info)
+        if (userError || !userData) {
+          await supabase.from('users').insert([
+            { email: email, created_at: new Date().toISOString() }
+          ]);
+        }
+
+        messageEl.textContent = 'Logged in successfully!';
+        messageEl.classList.add('success');
+        setTimeout(() => {
+          window.location.href = 'profile.html';
+        }, 1000);
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      messageEl.textContent = 'Unexpected error occurred.';
+      messageEl.classList.add('error');
+    }
+  });
+
+  // REMOVE the auto-redirect on page load to prevent redirect loop!
+  // Do NOT include any window.addEventListener('load', ...) that redirects to profile.html
+
+</script>
+</body>
+</html>

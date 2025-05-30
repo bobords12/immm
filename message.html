@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Messaging</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #5e9fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .phone-frame {
+            background: #222;
+            border-radius: 48px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25), 0 1.5px 0 #888 inset;
+            width: 390px;
+            max-width: 98vw;
+            height: 800px;
+            max-height: 98vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            overflow: hidden;
+            border: 10px solid #222;
+        }
+        .notch {
+            width: 210px;
+            height: 32px;
+            background: #181818;
+            border-radius: 0 0 28px 28px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            margin-top: -10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .speaker {
+            width: 60px;
+            height: 8px;
+            background: #444;
+            border-radius: 8px;
+            margin: 0 8px;
+        }
+        .camera {
+            width: 14px;
+            height: 14px;
+            background: #222;
+            border-radius: 50%;
+            border: 2px solid #444;
+            margin-left: 12px;
+            margin-right: 12px;
+        }
+        .phone-content {
+            width: 100%;
+            height: 100%;
+            padding: 56px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            background: #f7f9fa;
+            border-radius: 38px;
+            overflow-y: auto;
+            position: relative;
+        }
+        .messaging-layout {
+            width: 96%;
+            max-width: 360px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            height: 92%;
+            min-height: 0;
+        }
+        .header-bar {
+            width: 100%;
+            padding: 1.2rem 0 0.7rem 0;
+            text-align: center;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #4a4a4a;
+            letter-spacing: 1px;
+            background: transparent;
+            user-select: none;
+        }
+        .recent-chats-section {
+            margin-bottom: 0.7rem;
+            width: 100%;
+        }
+        .recent-chats-list {
+            max-height: 70px;
+            overflow-y: auto;
+            background: #f0f0ff;
+            border-radius: 12px;
+            padding: 0.5rem;
+            box-shadow: inset 0 0 8px rgba(102, 126, 234, 0.2);
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+        }
+        .chat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+            padding: 0.3rem 0.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            background: white;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.1);
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+        .chat-item:hover {
+            background-color: #dbe2ff;
+        }
+        .chat-item.active {
+            background-color: #a2aaff;
+            color: white;
+        }
+        .chat-username {
+            font-weight: 600;
+            font-size: 0.95rem;
+            user-select: none;
+            margin-bottom: 0.2rem;
+        }
+        .unread-badge {
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 7px;
+            font-size: 0.75rem;
+            min-width: 22px;
+            text-align: center;
+            display: inline-block;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+        }
+        .search-section {
+            width: 100%;
+            margin-bottom: 0.7rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .search-section label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.2rem;
+        }
+        .search-section input,
+        .search-section select {
+            width: 100%;
+            padding: 0.6rem 0.9rem;
+            font-size: 1rem;
+            border-radius: 10px;
+            border: 1.5px solid #ddd;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+            box-sizing: border-box;
+            outline-offset: 2px;
+        }
+        .search-section input:focus,
+        .search-section select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+        }
+        .message-section {
+            width: 100%;
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.7rem;
+        }
+        .message-section h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            color: #764ba2;
+            font-weight: 700;
+        }
+        .messages-list {
+            flex: 1 1 0;
+            max-height: 180px;
+            overflow-y: auto;
+            background: #f9f9ff;
+            border-radius: 12px;
+            padding: 0.7rem;
+            box-shadow: inset 0 0 10px rgba(118, 75, 162, 0.07);
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .message-item {
+            padding: 0.6rem 0.8rem;
+            border-radius: 12px;
+            margin-bottom: 0.7rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            background: #fff;
+            transition: background 0.3s ease;
+        }
+        .message-item.sent {
+            background: #e3eaff;
+            align-self: flex-end;
+        }
+        .message-item.received {
+            background: #f7f7f7;
+            align-self: flex-start;
+        }
+        .message-header {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #764ba2;
+            margin-bottom: 0.2rem;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .message-content {
+            margin: 0;
+            font-size: 1rem;
+            color: #444;
+            white-space: pre-wrap;
+            user-select: text;
+        }
+        .reply-info {
+            font-size: 0.8rem;
+            color: #a58fdc;
+            margin-bottom: 0.2rem;
+            font-style: italic;
+            user-select: none;
+        }
+        .send-section {
+            width: 100%;
+            margin-bottom: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .send-section label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.2rem;
+        }
+        .send-section textarea {
+            resize: vertical;
+            min-height: 60px;
+            font-size: 1rem;
+            border-radius: 10px;
+            border: 1.5px solid #ccc;
+            padding: 0.6rem 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        .send-section button {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 0.7rem 1.2rem;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.13);
+            user-select: none;
+        }
+        .send-section button:hover {
+            background: linear-gradient(90deg, #5a6bdc, #633f91);
+        }
+        #statusMessage {
+            text-align: center;
+            margin-top: 0.2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            user-select: none;
+            min-height: 1.2em;
+            transition: color 0.3s ease;
+        }
+        .error {
+            color: #e63946;
+        }
+        .success {
+            color: #2a9d8f;
+        }
+        /* Hide scrollbars for phone content */
+        .phone-content::-webkit-scrollbar {
+            display: none;
+        }
+        .phone-content {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="notch">
+            <div class="camera"></div>
+            <div class="speaker"></div>
+        </div>
+        <div class="phone-content">
+            <div class="messaging-layout">
+                <div class="header-bar">Messaging</div>
+                <div class="recent-chats-section">
+                    <div class="recent-chats-list" id="recentChatsList"></div>
+                </div>
+                <div class="search-section">
+                    <label for="searchUser">Search Users by Username:</label>
+                    <input type="text" id="searchUser" placeholder="Enter username to search" autocomplete="off" />
+                    <select id="userSelect" aria-label="Select user to message">
+                        <option value="">-- Select a user to message --</option>
+                    </select>
+                </div>
+                <div class="message-section">
+                    <h3>Messages</h3>
+                    <div class="messages-list" id="messagesList" aria-live="polite" aria-relevant="additions"></div>
+                </div>
+                <div class="send-section">
+                    <label for="messageContent">Write your message:</label>
+                    <textarea id="messageContent" placeholder="Type your message here..." aria-multiline="true"></textarea>
+                    <button id="sendMessageBtn" type="button" aria-label="Send message">Send Message</button>
+                </div>
+                <div id="statusMessage" role="alert" aria-live="assertive"></div>
+            </div>
+        </div>
+    </div>
+<script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabaseUrl = 'https://rzsymysabhexvzylvkws.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6c3lteXNhYmhleHZ6eWx2a3dzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1MTU2ODUsImV4cCI6MjA2NDA5MTY4NX0.VGqamdohNs4afOerQpWCak5UsytPaSxdPcuMj6aTeLQ'
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    const searchUserInput = document.getElementById('searchUser');
+    const userSelect = document.getElementById('userSelect');
+    const messagesList = document.getElementById('messagesList');
+    const messageContentInput = document.getElementById('messageContent');
+    const sendMessageBtn = document.getElementById('sendMessageBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    const recentChatsList = document.getElementById('recentChatsList');
+
+    let currentUser = null;
+    let selectedUserId = null;
+
+    function showStatus(text, isError = false) {
+        statusMessage.textContent = text;
+        statusMessage.className = isError ? 'error' : 'success';
+        if (!isError) {
+            setTimeout(() => {
+                statusMessage.textContent = '';
+                statusMessage.className = '';
+            }, 3000);
+        }
+    }
+
+    async function getCurrentUser() {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error || !session) {
+            alert('You must be logged in to use messaging.');
+            window.location.href = 'login.html';
+            return null;
+        }
+        const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('id, fullname, username, email')
+            .eq('email', session.user.email)
+            .single();
+
+        if (userError || !userData) {
+            alert('Error fetching user profile.');
+            window.location.href = 'login.html';
+            return null;
+        }
+        return userData;
+    }
+
+    async function searchUsers(username) {
+        if (!username) {
+            userSelect.innerHTML = '<option value="">-- Select a user to message --</option>';
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from('users')
+            .select('id, username')
+            .ilike('username', username + '%')
+            .limit(10);
+
+        if (error) {
+            showStatus('Error loading users.', true);
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            userSelect.innerHTML = '<option value="">No users found</option>';
+            return;
+        }
+
+        userSelect.innerHTML = '<option value="">-- Select a user to message --</option>';
+        data.forEach(user => {
+            if (currentUser && user.id !== currentUser.id) {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.username;
+                userSelect.appendChild(option);
+            }
+        });
+    }
+
+    async function fetchMessages() {
+        if (!selectedUserId) {
+            messagesList.innerHTML = '<p>Select a user to see messages.</p>';
+            return;
+        }
+        if (!currentUser) {
+            messagesList.innerHTML = '<p>Loading user info...</p>';
+            return;
+        }
+
+        const senderId = parseInt(currentUser.id, 10);
+        const receiverId = parseInt(selectedUserId, 10);
+
+        const { data, error } = await supabase
+            .from('messages')
+            .select(`
+                id,
+                content,
+                created_at,
+                sender:sender_id (id, username),
+                receiver:receiver_id (id, username),
+                reply_to
+            `)
+            .or(
+                `and(sender_id.eq.${senderId},receiver_id.eq.${receiverId}),and(sender_id.eq.${receiverId},receiver_id.eq.${senderId})`
+            )
+            .order('created_at', { ascending: true });
+
+        if (error) {
+            messagesList.innerHTML = '<p class="error">Error loading messages.</p>';
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            messagesList.innerHTML = '<p>No messages yet. Start the conversation!</p>';
+            return;
+        }
+
+        messagesList.innerHTML = '';
+        data.forEach(msg => {
+            const div = document.createElement('div');
+            const isSender = msg.sender?.id === senderId;
+            div.className = `message-item ${isSender ? 'sent' : 'received'}`;
+
+            const senderName = isSender ? 'You' : (msg.sender?.username || 'Unknown');
+            const content = msg.content || '';
+            const date = new Date(msg.created_at).toLocaleString();
+
+            let replyText = '';
+            if (msg.reply_to) {
+                replyText = `<div class="reply-info">Replying to message #${msg.reply_to}</div>`;
+            }
+
+            div.innerHTML = `
+                <div class="message-header">
+                    <span>${senderName}</span>
+                    <small>${date}</small>
+                </div>
+                ${replyText}
+                <p class="message-content">${content}</p>
+            `;
+            messagesList.appendChild(div);
+        });
+
+        messagesList.scrollTop = messagesList.scrollHeight;
+    }
+
+    async function sendMessage() {
+        if (!currentUser) {
+            alert('User data not loaded. Please refresh the page.');
+            return;
+        }
+
+        const content = messageContentInput.value.trim();
+        if (!content) {
+            alert('Please enter a message.');
+            return;
+        }
+        if (!selectedUserId) {
+            alert('Please select a user to send a message.');
+            return;
+        }
+
+        const senderId = parseInt(currentUser.id, 10);
+        const receiverId = parseInt(selectedUserId, 10);
+
+        // Insert the message into the messages table
+        const { error } = await supabase
+            .from('messages')
+            .insert([{
+                sender_id: senderId,
+                receiver_id: receiverId,
+                content: content,
+                created_at: new Date().toISOString(),
+                is_read: false
+            }]);
+
+        if (error) {
+            showStatus('Failed to send message.', true);
+            return;
+        }
+
+        messageContentInput.value = '';
+        await fetchMessages();
+        showStatus('Message sent!');
+    }
+
+    async function loadRecentChats() {
+        if (!currentUser) return;
+
+        const currentUserId = parseInt(currentUser.id, 10);
+
+        // Get users you have sent or received messages with, sorted by latest message
+        const { data, error } = await supabase
+            .from('messages')
+            .select(`
+                sender_id,
+                receiver_id,
+                created_at,
+                sender:sender_id (id, username),
+                receiver:receiver_id (id, username),
+                is_read
+            `)
+            .or(`sender_id.eq.${currentUserId},receiver_id.eq.${currentUserId}`)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            recentChatsList.innerHTML = `<p class="error">Failed to load recent chats: ${error.message}</p>`;
+            return;
+        }
+
+        // Collect unique chat partners
+        const chatMap = {};
+        data.forEach(msg => {
+            const partner = msg.sender_id === currentUserId ? msg.receiver : msg.sender;
+            if (!partner || partner.id === currentUserId) return;
+            if (!chatMap[partner.id]) {
+                chatMap[partner.id] = {
+                    id: partner.id,
+                    username: partner.username,
+                    unread_count: 0
+                };
+            }
+            // Count unread messages from partner to you
+            if (msg.sender_id === partner.id && msg.receiver_id === currentUserId && !msg.is_read) {
+                chatMap[partner.id].unread_count += 1;
+            }
+        });
+
+        const chatUsers = Object.values(chatMap);
+
+        if (chatUsers.length === 0) {
+            recentChatsList.innerHTML = '<p>No recent chats found.</p>';
+            return;
+        }
+
+        recentChatsList.innerHTML = '';
+        chatUsers.forEach(user => {
+            const chatItem = document.createElement('div');
+            chatItem.className = 'chat-item';
+            chatItem.dataset.userid = user.id;
+
+            const usernameSpan = document.createElement('span');
+            usernameSpan.className = 'chat-username';
+            usernameSpan.textContent = user.username;
+            chatItem.appendChild(usernameSpan);
+
+            if (user.unread_count > 0) {
+                const badge = document.createElement('span');
+                badge.className = 'unread-badge';
+                badge.textContent = user.unread_count;
+                chatItem.appendChild(badge);
+            }
+
+            chatItem.addEventListener('click', async () => {
+                selectedUserId = parseInt(chatItem.dataset.userid, 10);
+                userSelect.value = selectedUserId;
+                document.querySelectorAll('.chat-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                chatItem.classList.add('active');
+                await fetchMessages();
+                await markMessagesRead(selectedUserId);
+            });
+
+            recentChatsList.appendChild(chatItem);
+        });
+    }
+
+    async function markMessagesRead(fromUserId) {
+        if (!currentUser || !fromUserId) return;
+
+        const currentUserId = parseInt(currentUser.id, 10);
+
+        const { error } = await supabase
+            .from('messages')
+            .update({ is_read: true })
+            .eq('sender_id', fromUserId)
+            .eq('receiver_id', currentUserId)
+            .eq('is_read', false);
+
+        if (error) {
+            console.error('Failed to mark messages read:', error);
+        } else {
+            updateUnreadBadge(fromUserId, 0);
+        }
+    }
+
+    searchUserInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        searchUsers(val);
+    });
+
+    userSelect.addEventListener('change', async (e) => {
+        selectedUserId = e.target.value ? parseInt(e.target.value, 10) : null;
+        document.querySelectorAll('.chat-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        await fetchMessages();
+    });
+
+    sendMessageBtn.addEventListener('click', sendMessage);
+
+    function updateUnreadBadge(userId, newCount) {
+        const chatItem = recentChatsList.querySelector(`[data-userid="${userId}"]`);
+        if (chatItem) {
+            let badge = chatItem.querySelector('.unread-badge');
+
+            if (newCount > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'unread-badge';
+                    const usernameSpan = chatItem.querySelector('.chat-username');
+                    if (usernameSpan) {
+                        usernameSpan.after(badge);
+                    } else {
+                        chatItem.appendChild(badge);
+                    }
+                }
+                badge.textContent = newCount;
+            } else {
+                if (badge) {
+                    badge.remove();
+                }
+            }
+        } else {
+            loadRecentChats();
+        }
+    }
+
+    async function initializeMessaging() {
+        currentUser = await getCurrentUser();
+        if (currentUser) {
+            searchUsers('');
+            if (recentChatsList) {
+                await loadRecentChats();
+                const firstChatItem = recentChatsList.querySelector('.chat-item');
+                if (firstChatItem) {
+                    selectedUserId = parseInt(firstChatItem.dataset.userid, 10);
+                    userSelect.value = selectedUserId;
+                    await fetchMessages();
+                    await markMessagesRead(selectedUserId);
+                    firstChatItem.classList.add('active');
+                }
+            }
+
+            supabase
+                .channel('public:messages')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async payload => {
+                    const newMessage = payload.new;
+                    if (newMessage.receiver_id === currentUser.id && newMessage.sender_id !== currentUser.id) {
+                        if (newMessage.sender_id === selectedUserId) {
+                            await fetchMessages();
+                            await markMessagesRead(selectedUserId);
+                        } else if (recentChatsList) {
+                            await loadRecentChats();
+                        }
+                    }
+                    if (newMessage.sender_id === currentUser.id && newMessage.receiver_id === selectedUserId) {
+                        await fetchMessages();
+                    }
+                })
+                .subscribe();
+
+            if (selectedUserId) {
+                await fetchMessages();
+            }
+        }
+    }
+
+    initializeMessaging();
+</script>
+</body>
+</html>
